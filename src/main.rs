@@ -9,10 +9,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let duration = 2.0;
     let num_samples = (sample_rate as f32 * duration) as usize;
     
-    let frequency = 240.0;
-    let buffer: Vec<f32> = (0..num_samples)
-        .map(|x| (x as f32 * frequency * 2.0 * std::f32::consts::PI / sample_rate as f32).sin() / 1.5)
-        .collect();
+    let frequency = 440.0;
+    let mut buffer: Vec<f32> = vec![0.0; num_samples];
+
+    let mut index: i32 = 0;
+    for sample in &mut buffer {
+        *sample += (((index as f32) / (sample_rate as f32)) * std::f32::consts::PI * frequency).sin();
+        index += 1;
+    }
+    println!("buffer length = {}", buffer.len());
 
     let mut writer = hound::WavWriter::create("output.wav", hound::WavSpec {
         channels: 1,
