@@ -2,6 +2,3 @@
 name = "audio_path_tracer"
 version = "0.1.0"
 edition = "2024"
-
-[dependencies]
-usd = "0.0.9"
