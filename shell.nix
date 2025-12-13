@@ -6,8 +6,8 @@ pkgs.mkShell {
     pkgs.git
     pkgs.gcc
     pkgs.python3
-    pkgs.pybind11
-    pkgs.opensource.usd
+    #pkgs.pybind11
+    #pkgs.opensource.usd
     pkgs.python314Packages.setuptools
 #    pkgs.python314Packages.distutils
     pkgs.rustc
