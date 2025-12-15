@@ -21,7 +21,7 @@ impl Vec3 {
         return format!("{} {} {}", &self.x, &self.y, &self.z);
     }
     fn length_square(&self) -> f32 {
-        return (&self.x + &self.y + &self.z).abs();
+        return self.x.powi(2) + self.y.powi(2) + self.z.powi(2);;
     }
     fn length(&self) -> f32 {
         return self.length_square().sqrt();
@@ -66,7 +66,7 @@ fn main() {
         cosD(cPitch) * sinD(cYaw), 
         sinD(cPitch));
     let cameraPos = Vec3::new(0.0, 0.0, 0.0);
-    let pixelSize = Vec3::new(0.6, 0.6, 1.0);
+    let pixelSize = Vec3::new(0.35, 0.6, 1.0);
     let widthPx: i32 = 80;
     let heightPx: i32 = 60;
     let focalLength: f32 = 2.0;
@@ -94,7 +94,8 @@ fn main() {
         let mut string = String::from("");
         for x in (0..widthPx) {
             let xp = x as usize;
-            let brightnessVal = (sdf(&screen[xp][yp].pos) / 10.0 * 5.0).floor() as usize;
+            let mut brightnessVal = (sdf(&screen[xp][yp].pos) / 10.0 * 5.0).floor() as usize;
+            brightnessVal = brightnessVal.min(4).max(0);
             string = string + &colorMap.chars().nth(brightnessVal).unwrap().to_string();
         }
         println!("{}", string);
