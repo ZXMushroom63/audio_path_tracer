@@ -21,26 +21,32 @@ impl Vec3 {
         return format!("{} {} {}", &self.x, &self.y, &self.z);
     }
     fn length_square(&self) -> f32 {
-        return self.x.powi(2) + self.y.powi(2) + self.z.powi(2);;
+        return self.x.powi(2) + self.y.powi(2) + self.z.powi(2);
     }
     fn length(&self) -> f32 {
         return self.length_square().sqrt();
     }
     fn add(&self, vec: &Vec3) -> Vec3 {
-        return Vec3::new(&self.x + &vec.x, &self.y + &vec.y, &self.z + &vec.z);
+        return Vec3::new(self.x + vec.x, self.y + vec.y, self.z + vec.z);
     }
     fn subt(&self, vec: &Vec3) -> Vec3 {
-        return Vec3::new(&self.x - &vec.x, &self.y - &vec.y, &self.z - &vec.z);
+        return Vec3::new(self.x - vec.x, self.y - vec.y, self.z - vec.z);
     }
     fn mult(&self, vec: &Vec3) -> Vec3 {
-        return Vec3::new(&self.x * &vec.x, &self.y * &vec.y, &self.z * &vec.z);
+        return Vec3::new(self.x * vec.x, self.y * vec.y, self.z * vec.z);
     }
     fn scale(&self, s: f32) -> Vec3 {
-        return Vec3::new(&self.x * s, &self.y * s, &self.z * s);
+        return Vec3::new(self.x * s, self.y * s, self.z * s);
     }
     fn normalise(&self) -> Vec3 {
         let max: f32 = self.x.max(self.y.max(self.z));
+        if (max == 0.0) {
+            return self.copy();
+        }
         return Vec3::new(self.x / max, self.y / max, self.z / max);
+    }
+    fn copy(&self) -> Vec3 {
+        return Vec3::new(self.x, self.y, self.z);
     }
 }
 
@@ -94,7 +100,13 @@ fn main() {
         let mut string = String::from("");
         for x in (0..widthPx) {
             let xp = x as usize;
-            let mut brightnessVal = (sdf(&screen[xp][yp].pos) / 10.0 * 5.0).floor() as usize;
+            let forward = &screen[xp][yp].forward;
+            let mut rayPos: Vec3 = screen[xp][yp].pos.copy();
+            for _i in (0..5) {
+                let dist = sdf(&rayPos);
+                rayPos = rayPos.add(&forward.scale(dist));
+            }
+            let mut brightnessVal = (sdf(&rayPos) / 10.0 * 5.0).floor() as usize;
             brightnessVal = brightnessVal.min(4).max(0);
             string = string + &colorMap.chars().nth(brightnessVal).unwrap().to_string();
         }
