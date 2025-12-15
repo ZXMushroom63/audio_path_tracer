@@ -1,4 +1,6 @@
 // USD support can wait
+#![allow(non_snake_case)]
+
 extern crate hound;
 use std::string::String;
 use std::f32;
@@ -42,7 +44,7 @@ impl Vec3 {
     }
 }
 
-fn signed_distance_function(pos: Vec3) -> f32 {
+fn sdf(pos: &Vec3) -> f32 {
     // a simple sphere
     // radius of 2
     return pos.length() - 2.0;
@@ -56,23 +58,26 @@ fn sinD(x: f32) -> f32 {
     return ((3.14 / 180.0) * x).sin(); 
 }
 fn main() {
+    let colorMap = String::from(" ░▒▓█");
     let cPitch: f32 = 0.0;
-    let cYaw: f32 = 0.0;
+    let cYaw: f32 = 45.0;
     let forwardVector = Vec3::new(
         cosD(cPitch) * cosD(cYaw), 
         cosD(cPitch) * sinD(cYaw), 
         sinD(cPitch));
-    let cameraPos = Vec3::new(0.0, 0.0, 20.0);
-    let pixelSize = Vec3::new(1.0, 1.0, 0.0);
-    let widthPx = 80;
-    let heightPx = 60;
+    let cameraPos = Vec3::new(0.0, 0.0, 0.0);
+    let pixelSize = Vec3::new(0.6, 0.6, 1.0);
+    let widthPx: i32 = 80;
+    let heightPx: i32 = 60;
     let focalLength: f32 = 2.0;
     let cameraProjectPos: Vec3 = forwardVector.scale(-focalLength).add(&cameraPos);
     let mut screen: Vec<Vec<Pixel>> = Vec::new();
     for x in (0..widthPx) {
+        let xp = x as usize;
         screen.push(Vec::new());
         for y in (0..heightPx) {
-            screen[x].push(Pixel {
+            let yp = y as usize;
+            screen[xp].push(Pixel {
                 pos: Vec3::new(
                     (x - widthPx / 2) as f32 * pixelSize.x,
                     (y - heightPx / 2) as f32 * pixelSize.y,
@@ -80,8 +85,19 @@ fn main() {
                 ).add(&cameraPos),
                 forward: Vec3::new(0.0,0.0,0.0)
             });
-            screen[x][y].forward = screen[x][y].pos.subt(&cameraProjectPos).normalise();
+            screen[xp][yp].forward = screen[xp][yp].pos.subt(&cameraProjectPos).normalise();
         }
+    }
+
+    for y in (0..heightPx) {
+        let yp = y as usize;
+        let mut string = String::from("");
+        for x in (0..widthPx) {
+            let xp = x as usize;
+            let brightnessVal = (sdf(&screen[xp][yp].pos) / 10.0 * 5.0).floor() as usize;
+            string = string + &colorMap.chars().nth(brightnessVal).unwrap().to_string();
+        }
+        println!("{}", string);
     }
 }
 
